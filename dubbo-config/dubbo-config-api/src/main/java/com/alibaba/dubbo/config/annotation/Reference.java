@@ -61,8 +61,18 @@ public @interface Reference {
 
     String client() default "";
 
+    /**
+     * 泛化引用
+     * 泛接口调用方式主要用于客户端没有API接口及模型类元的情况,参数及返回值中的所有POJO均用Map表示 通常用于框架集成
+     * 比如:实现一个通用的服务测试框架,可通过GenericService调用所有服务实现。
+     * @return
+     */
     boolean generic() default false;
 
+    /**
+     * 本地调用 使用Injvm协议,是一个伪协议 它不开启端口 不发起远程调用 只在JVM内直接关联 但执行Dubbo的Filter链
+     * @return
+     */
     boolean injvm() default false;
 
     boolean check() default false;
@@ -99,6 +109,11 @@ public @interface Reference {
 
     String loadbalance() default "";
 
+    /**
+     * 异步调用
+     * 基于NIO的非阻塞实现并行调用 客户端不需要启动多线程即可完成并行调用多个远程服务 相对多线程开销较小
+     * @return
+     */
     boolean async() default false;
 
     int actives() default 0;
@@ -107,10 +122,21 @@ public @interface Reference {
 
     String mock() default "";
 
+    /**
+     * 参数验证:服务器端是否验证参数
+     * @return
+     */
     String validation() default "";
 
     int timeout() default 0;
 
+    /**
+     * 结果缓存
+     *  lru :基于最近最少使用原则删除多余缓存 保持最热的数据被缓存
+     *  threadlocal :当前线程缓存,比如一个页面渲染 用到很多portal 每个portal都要查询用户信息 通过线程缓存 可以减少这种访问
+     *  jcache 与JSR107集成 可以桥接各种缓存实现
+     * @return
+     */
     String cache() default "";
 
     String[] filter() default {};

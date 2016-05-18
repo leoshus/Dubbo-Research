@@ -83,6 +83,11 @@ public @interface Service {
 
     int connections() default 0;
 
+    /**
+     * 参数回调
+     * 参数回调方式与调用本地callback或listener相同，只需要在Spring的配置文件中声明哪个参数是callback类型即可，Dubbo将基于长连接生成反向代理，这样就可以从服务器端调用客户端逻辑。
+     * @return
+     */
     int callbacks() default 0;
 
     String onconnect() default "";
@@ -105,6 +110,10 @@ public @interface Service {
 
     String mock() default "";
 
+    /**
+     * 参数验证:客户端是否验证参数
+     * @return
+     */
     String validation() default "";
 
     int timeout() default 0;
