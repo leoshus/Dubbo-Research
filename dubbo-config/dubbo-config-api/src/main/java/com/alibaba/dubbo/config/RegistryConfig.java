@@ -33,6 +33,11 @@ public class RegistryConfig extends AbstractConfig {
 	
 	public static final String NO_AVAILABLE = "N/A";
 
+    /**
+     * 多注册中心时
+     * 使用"|" 分隔表示连接不同的注册中心
+     * 使用"," 分隔表示连接同一注册中心的集群地址
+     */
     // 注册中心地址
     private String            address;
     
@@ -76,6 +81,9 @@ public class RegistryConfig extends AbstractConfig {
     // 启动时检查注册中心是否存在
     private Boolean           check;
 
+    /**
+     * 有时需要将注册中心标识为非动态管理模式 即dynamic=false 可以实现人工管理服务提供者的上线和下线
+     */
     // 在该注册中心上注册是动态的还是静态的服务
     private Boolean           dynamic;
     

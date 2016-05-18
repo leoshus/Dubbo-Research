@@ -52,6 +52,29 @@ public abstract class AbstractMethodConfig extends AbstractConfig {
     // 服务接口的失败mock实现类名
     protected String              mock;
 
+    /**
+     * 1、搜索所有分组
+     *     <dubbo:reference interface="com.xxx.MenuService" group="*" merger="true" />
+     * 2、合并指定分组
+     *      <dubbo:reference interface="com.xxx.MenuService" group="aaa,bbb" merger="true" />
+     * 3、指定方法合并结果 其他未指定的方法,将只调用一个Group
+     *    <dubbo:reference interface="com.xxx.MenuService" group="*">
+     *       <dubbo:method name="getMenuItems" merger="true" />
+     *    </dubbo:service>
+     * 4、某个方法不合并结果,其他的都合并结果
+     *   <dubbo:reference interface="com.xxx.MenuService" group="*" merger="true">
+     *      <dubbo:method name="getMenuItems" merger="false" />
+     *   </dubbo:service>
+     * 5、指定合并策略 缺省根据返回值类型自动匹配 若同一类型有两个合并器时 需指定合并器名称
+     *
+     *  <dubbo:reference interface="com.xxx.MenuService" group="*">
+     *      <dubbo:method name="getMenuItems" merger="mymerge" />
+     *  </dubbo:service>
+     * 6、指定合并方法,将调用返回结果的指定方法进行合并 合并方法的参数类型必须是返回结果类型本身
+     *  <dubbo:reference interface="com.xxx.MenuService" group="*">
+     *      <dubbo:method name="getMenuItems" merger=".addAll" />
+     *  </dubbo:service>
+     */
     // 合并器
     protected String              merger;
     

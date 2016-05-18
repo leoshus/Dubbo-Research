@@ -36,8 +36,19 @@ public @interface Service {
 
     String interfaceName() default "";
 
+    /**
+     * 多版本 当一个接口实现,出现不兼容升级时,可用用版本号过渡 版本号不同的服务相互间不引用
+     * 在低峰期 先升级一半提供者为新版本
+     * 然后将所有的消费者升级为新版本
+     * 最好将剩下的一半提供者升级为新版本
+     * @return
+     */
     String version() default "";
 
+    /**
+     * 同一接口的不同实现时 使用group分组区分
+     * @return
+     */
     String group() default "";
 
     String path() default "";
@@ -112,10 +123,18 @@ public @interface Service {
 
     String provider() default "";
 
+    /**
+     * 服务使用的协议 一个服务支持多个协议 使用逗号分隔如 protocol="dubbo,hessian"
+     * @return
+     */
     String[] protocol() default {};
 
     String monitor() default "";
 
+    /**
+     * 一个服务配置一个或多个注册中心
+     * @return
+     */
     String[] registry() default {};
 
 }

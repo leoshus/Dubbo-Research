@@ -36,10 +36,27 @@ public @interface Reference {
 
     String interfaceName() default "";
 
+    /**
+     * 多版本 当一个接口实现,出现不兼容升级时,可用用版本号过渡 版本号不同的服务相互间不引用
+     * 在低峰期 先升级一半提供者为新版本
+     * 然后将所有的消费者升级为新版本
+     * 最好将剩下的一半提供者升级为新版本
+     * "*" 表示不区分版本 (2.2.0以上版本支持)
+     * @return
+     */
     String version() default "";
 
+    /**
+     * 同一接口的不同实现时 使用group分组区分
+     * "*" 表示任意分组(2.2.0以上版本支持 总是只调用一个可用组的实现)
+     * @return
+     */
     String group() default "";
 
+    /**
+     * 配置url 绕过注册中心 实现点对点通信
+     * @return
+     */
     String url() default "";
 
     String client() default "";
@@ -110,6 +127,10 @@ public @interface Reference {
 
     String monitor() default "";
 
+    /**
+     * 指向注册中心id
+     * @return
+     */
     String[] registry() default {};
 
 }
