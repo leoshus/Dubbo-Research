@@ -79,12 +79,24 @@ public @interface Reference {
 
     boolean init() default false;
 
+    /**
+     * 延迟连接
+     * 延迟连接，用于减少长连接数，当有调用发起时，再创建长连接。
+     * 注:只对使用长连接的dubbo协议生效。
+     * @return
+     */
     boolean lazy() default false;
 
     boolean stubevent() default false;
 
     String reconnect() default "";
 
+    /**
+     * 粘滞连接
+     * 粘滞连接用于有状态服务,尽可能让客户端总是向同一提供者发起调用,除非该提供者挂了,再连另一台
+     * 粘滞连接将自动开启延迟连接,以减少长连接数
+     * @return
+     */
     boolean sticky() default false;
 
     String proxy() default "";
@@ -93,6 +105,13 @@ public @interface Reference {
 
     String cluster() default "";
 
+    /**
+     * 连接控制
+     *
+     * 限制客户端服务使用连接连接数：(如果是长连接，比如Dubbo协议，connections表示该服务对每个提供者建立的长连接数)
+     * 如果<dubbo:service>和<dubbo:reference>都配了connections，<dubbo:reference>优先
+     * @return
+     */
     int connections() default 0;
 
     int callbacks() default 0;
