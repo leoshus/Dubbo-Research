@@ -71,6 +71,7 @@ public @interface Reference {
 
     /**
      * 本地调用 使用Injvm协议,是一个伪协议 它不开启端口 不发起远程调用 只在JVM内直接关联 但执行Dubbo的Filter链
+     * 注意:服务暴露与服务引用都需要声明injvm="true"
      * @return
      */
     boolean injvm() default false;
@@ -137,6 +138,12 @@ public @interface Reference {
 
     int actives() default 0;
 
+    /**
+     * 设置是否等待消息发出 (异步总是不等待返回)
+     * sent="true" 等待消息发出,消息发送失败将抛出异常
+     * sent="false" 不等待消息发出,将消息放入IO队列,立即返回
+     * @return
+     */
     boolean sent() default false;
 
     String mock() default "";

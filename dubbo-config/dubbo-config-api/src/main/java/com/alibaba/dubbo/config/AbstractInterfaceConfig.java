@@ -98,6 +98,10 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     // 断开事件
     protected String              ondisconnect;
 
+    /**
+     * 从dubbo2.2.0开始,每个服务默认都会在本地暴露 在引用服务的时候,默认优先引用本地服务
+     * 若希望引用远程服务 则需要使用配置scope="remote" 强制引用远程服务
+     */
     // 服务暴露或引用的scope,如果为local，则表示只在当前JVM内查找.
 	private String scope;
 
