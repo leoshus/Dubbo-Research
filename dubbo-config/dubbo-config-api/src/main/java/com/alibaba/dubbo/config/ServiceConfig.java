@@ -115,17 +115,19 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
 	}
 
     public synchronized void export() {
-        if (provider != null) {
-            if (export == null) {
+        if (provider != null) {//若provider没有配置
+            if (export == null) {//若exporter没有配置 使用provider所关联的exporter
                 export = provider.getExport();
             }
-            if (delay == null) {
+            if (delay == null) {//若delay(延迟暴露)没有配置 获取provider的delay
                 delay = provider.getDelay();
             }
         }
+        //若不需要暴露接口则直接返回
         if (export != null && ! export.booleanValue()) {
             return;
         }
+        //若延迟暴露的时间(毫秒级)是存在的 开启线程并等待delay毫秒后开始暴露接口,否则直接执行暴露接口过程
         if (delay != null && delay > 0) {
             Thread thread = new Thread(new Runnable() {
                 public void run() {
@@ -133,6 +135,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                         Thread.sleep(delay);
                     } catch (Throwable e) {
                     }
+                    //暴露接口
                     doExport();
                 }
             });
@@ -145,10 +148,10 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
     }
     
     protected synchronized void doExport() {
-        if (unexported) {
+        if (unexported) {//若不需要暴露接口直接抛出异常
             throw new IllegalStateException("Already unexported!");
         }
-        if (exported) {
+        if (exported) {//若已经暴露则不需要重复暴露
             return;
         }
         exported = true;
@@ -156,6 +159,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
             throw new IllegalStateException("<dubbo:service interface=\"\" /> interface not allow null!");
         }
         checkDefault();
+        //provider已经配置的情况下,若application、module、registries、monitor、protocol中有未配置的均可从provider获取
         if (provider != null) {
             if (application == null) {
                 application = provider.getApplication();
@@ -203,6 +207,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
             checkRef();
             generic = false;
         }
+        //本地服务
         if(local !=null){
             if(local=="true"){
                 local=interfaceName+"Local";
@@ -217,6 +222,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                 throw new IllegalStateException("The local implemention class " + localClass.getName() + " not implement interface " + interfaceName);
             }
         }
+        //远程服务
         if(stub !=null){
             if(stub=="true"){
                 stub=interfaceName+"Stub";
@@ -234,11 +240,13 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
         checkApplication();
         checkRegistry();
         checkProtocol();
+        //将所有这些对象的属性关联到provider
         appendProperties(this);
         checkStubAndMock(interfaceClass);
         if (path == null || path.length() == 0) {
             path = interfaceName;
         }
+        //暴露地址
         doExportUrls();
     }
 
@@ -276,6 +284,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
     
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private void doExportUrls() {
+        //将注册的所有url匹配上对应的协议在服务端暴露出来
         List<URL> registryURLs = loadRegistries(true);
         for (ProtocolConfig protocolConfig : protocols) {
             doExportUrlsFor1Protocol(protocolConfig, registryURLs);
@@ -284,10 +293,11 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
 
     private void doExportUrlsFor1Protocol(ProtocolConfig protocolConfig, List<URL> registryURLs) {
         String name = protocolConfig.getName();
+        //若未配置protocol则默认使用dubbo协议
         if (name == null || name.length() == 0) {
             name = "dubbo";
         }
-
+        //获取主机地址
         String host = protocolConfig.getHost();
         if (provider != null && (host == null || host.length() == 0)) {
             host = provider.getHost();
@@ -304,10 +314,12 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                 if (registryURLs != null && registryURLs.size() > 0) {
                     for (URL registryURL : registryURLs) {
                         try {
+                            //创建socket 连接到注册中心
                             Socket socket = new Socket();
                             try {
                                 SocketAddress addr = new InetSocketAddress(registryURL.getHost(), registryURL.getPort());
                                 socket.connect(addr, 1000);
+                                //获取服务所在主机地址
                                 host = socket.getLocalAddress().getHostAddress();
                                 break;
                             } finally {
@@ -325,7 +337,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                 }
             }
         }
-
+        //获取协议端口号
         Integer port = protocolConfig.getPort();
         if (provider != null && (port == null || port == 0)) {
             port = provider.getPort();
@@ -342,7 +354,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
             }
             logger.warn("Use random available port(" + port + ") for protocol " + name);
         }
-
+        //获取applicatoin、module、provider、protocol、exporter、registries、monitor所有属性
         Map<String, String> map = new HashMap<String, String>();
         if (anyhost) {
             map.put(Constants.ANYHOST_KEY, "true");
@@ -448,6 +460,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
         if ((contextPath == null || contextPath.length() == 0) && provider != null) {
             contextPath = provider.getContextpath();
         }
+        //创建服务所在url
         URL url = new URL(name, host, port, (contextPath == null || contextPath.length() == 0 ? "" : contextPath + "/") + path, map);
 
         if (ExtensionLoader.getExtensionLoader(ConfiguratorFactory.class)

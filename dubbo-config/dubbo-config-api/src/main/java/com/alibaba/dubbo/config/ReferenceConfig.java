@@ -251,8 +251,10 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
             }
         }
         checkApplication();
+        //检查远端和本地服务接口真实存在(是否可load)
         checkStubAndMock(interfaceClass);
         Map<String, String> map = new HashMap<String, String>();
+        //配置dubbo的端属性(是consumer还是provider)、版本属性、创建时间、进程号
         Map<Object, Object> attributes = new HashMap<Object, Object>();
         map.put(Constants.SIDE_KEY, Constants.CONSUMER_SIDE);
         map.put(Constants.DUBBO_VERSION_KEY, Version.getVersion());
@@ -276,6 +278,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
             }
         }
         map.put(Constants.INTERFACE_KEY, interfaceName);
+        //调用application、module、consumer的get方法将属性设置到map中
         appendParameters(map, application);
         appendParameters(map, module);
         appendParameters(map, consumer, Constants.DEFAULT_KEY);
@@ -297,6 +300,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
         }
         //attributes通过系统context进行存储.
         StaticContext.getSystemContext().putAll(attributes);
+        //在map装载了application、module、consumer、reference的所有属性信息后创建代理
         ref = createProxy(map);
     }
     
@@ -389,6 +393,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
             }
 
             if (urls.size() == 1) {
+                //此处举例说明如果是Dubbo协议则调用DubboProtocol的refer方法生成invoker 当用户调用service接口实际调用的是invoker的invoke方法
                 invoker = refprotocol.refer(interfaceClass, urls.get(0));
             } else {
                 List<Invoker<?>> invokers = new ArrayList<Invoker<?>>();
