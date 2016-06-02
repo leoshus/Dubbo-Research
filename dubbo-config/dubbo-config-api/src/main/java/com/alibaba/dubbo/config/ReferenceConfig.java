@@ -180,8 +180,10 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
 			} catch (ClassNotFoundException e) {
 				throw new IllegalStateException(e.getMessage(), e);
 			}
+            //1、检查是否是接口 2、若有methods配置 检查methods中声明的方法在接口中是否存在
             checkInterfaceAndMethods(interfaceClass, methods);
         }
+        //用户可以通过系统属性的方式来指定interfaceName对应的url
         String resolve = System.getProperty(interfaceName);
         String resolveFile = null;
         if (resolve == null || resolve.length() == 0) {
@@ -339,6 +341,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
     
 	@SuppressWarnings({ "unchecked", "rawtypes", "deprecation" })
 	private T createProxy(Map<String, String> map) {
+        //使用map创建一个dubbo重构的URL对象
 		URL tmpUrl = new URL("temp", "localhost", 0, map);
 		final boolean isJvmRefer;
         if (isInjvm() == null) {
@@ -391,8 +394,9 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
                     throw new IllegalStateException("No such any registry to reference " + interfaceName  + " on the consumer " + NetUtils.getLocalHost() + " use dubbo version " + Version.getVersion() + ", please config <dubbo:registry address=\"...\" /> to your spring config.");
                 }
             }
-
-            if (urls.size() == 1) {
+            //此处refprotocol为RegistryProtocol 它的refer方法会生成一个Registry(如ZookeeperRegistry、MulticastRegistry)
+            //生成的Registry通过url中的注册中心地址与注册中心建立连接 并订阅相关信息 最终封装成一个invoker
+            if (urls.size() == 1) {//单个注册中心
                 //此处举例说明如果是Dubbo协议则调用DubboProtocol的refer方法生成invoker 当用户调用service接口实际调用的是invoker的invoke方法
                 invoker = refprotocol.refer(interfaceClass, urls.get(0));
             } else {
@@ -414,6 +418,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
             }
         }
 
+        //检查check属性 若check为空或为true 检测与服务提供方是否连接成功 连接失败则报错
         Boolean c = check;
         if (c == null && consumer != null) {
             c = consumer.isCheck();

@@ -134,6 +134,16 @@ public abstract class AbstractConfig implements Serializable {
         }
     }
 
+    /**
+     * 从System.getProperty中获取配置 若有相应的值则替换配置文件中的值
+     * 例如consumer来说,若配置了timeout=5000 可通过
+     * 1、在启动参数中设置dubbo.consumer.timeout=3000来修改这个值
+     * 2、在启动参数中设置dubbo.consumer.com.alibaba.dubbo.config.ConsumerConfig.timeout=3000来修改这个值
+     * 其中第二种方式优先级高于第一种 修改其他属性只需要替换timeout
+     * 若系统设置中没有 还可以在启动参数中设置dubbo.properties.file(若没有设置则为dubbo.properties),加载文件中的配置
+     * 其中系统设置的优先级高于文件设置
+     * @param config
+     */
     protected static void appendProperties(AbstractConfig config) {
         if (config == null) {
             return;
