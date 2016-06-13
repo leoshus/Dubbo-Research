@@ -77,25 +77,45 @@ public class ExtensionLoader<T> {
 
     // ==============================
 
+    /**
+     * 扩展类型
+     */
     private final Class<?> type;
 
     private final ExtensionFactory objectFactory;
 
+    /**
+     * 键值对:扩展类-扩展名称
+     */
     private final ConcurrentMap<Class<?>, String> cachedNames = new ConcurrentHashMap<Class<?>, String>();
     
     private final Holder<Map<String, Class<?>>> cachedClasses = new Holder<Map<String,Class<?>>>();
 
     private final Map<String, Activate> cachedActivates = new ConcurrentHashMap<String, Activate>();
-
+    /**
+     * 若类中含有注解@Adaptive  则将这个扩展类 设置为cachedAdaptiveClass
+     */
     private volatile Class<?> cachedAdaptiveClass = null;
 
+    /**
+     * 缓存加载的扩展实例
+     */
     private final ConcurrentMap<String, Holder<Object>> cachedInstances = new ConcurrentHashMap<String, Holder<Object>>();
 
+    /**
+     * 若扩展上存在@SPI注解 注解的值为cachedDefaultName
+     */
     private String cachedDefaultName;
 
+    /**
+     * 当前的扩展类
+     */
     private final Holder<Object> cachedAdaptiveInstance = new Holder<Object>();
     private volatile Throwable createAdaptiveInstanceError;
 
+    /**
+     * 装饰器类集合
+     */
     private Set<Class<?>> cachedWrapperClasses;
     
     private Map<String, IllegalStateException> exceptions = new ConcurrentHashMap<String, IllegalStateException>();
@@ -640,6 +660,7 @@ public class ExtensionLoader<T> {
                                                 }
                                             } else {
                                                 try {
+                                                    //查找是否存在type为参数的构造器   即是否是一个装饰器类
                                                     clazz.getConstructor(type);
                                                     Set<Class<?>> wrappers = cachedWrapperClasses;
                                                     if (wrappers == null) {
@@ -647,9 +668,10 @@ public class ExtensionLoader<T> {
                                                         wrappers = cachedWrapperClasses;
                                                     }
                                                     wrappers.add(clazz);
-                                                } catch (NoSuchMethodException e) {
+                                                } catch (NoSuchMethodException e) {//若不是一个装饰器类
                                                     clazz.getConstructor();
                                                     if (name == null || name.length() == 0) {
+                                                        //查看当前类是否存在Extension注解
                                                         name = findAnnotationName(clazz);
                                                         if (name == null || name.length() == 0) {
                                                             if (clazz.getSimpleName().length() > type.getSimpleName().length()
